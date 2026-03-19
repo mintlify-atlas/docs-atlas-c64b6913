@@ -91,6 +91,7 @@ server:
         - profile
         - email
 
+# meetings is optional — omit this block entirely to disable meeting integrations
 meetings:
   zoom:
     enabled: true
@@ -264,6 +265,10 @@ connection fields are supported.
 Enable the authentication methods that your deployment will offer to users.
 At least one must be `true`.
 
+<Note>
+  At least one login method must be enabled. All three default to `false` — enable at least one before starting the server.
+</Note>
+
 <ParamField path="server.login.email" type="boolean" default="false">
   Enable email + password authentication.
 </ParamField>
@@ -337,41 +342,44 @@ Required when `server.login.linuxfoundation` is `true`.
 
 ## Zoom meetings (`meetings.zoom`)
 
-Zoom integration is optional. When disabled, the meetings UI is hidden.
+Zoom integration is optional. The entire `meetings` block can be omitted from your config to disable meetings support. When included, `meetings.zoom.enabled` controls whether the integration is active.
 
-<ParamField path="meetings.zoom.enabled" type="boolean" default="false">
-  Set to `true` to activate the Zoom meetings integration. All other fields in
-  this section are required when enabled.
+<Note>
+  The `meetings` top-level key is optional. Omit it entirely to disable all meeting integrations. If you include it, all fields in the `meetings.zoom` block are required when `enabled` is `true`.
+</Note>
+
+<ParamField path="meetings.zoom.enabled" type="boolean" required>
+  Set to `true` to activate the Zoom meetings integration. When `false`, the meetings UI is hidden and no other fields in this block are validated.
 </ParamField>
 
-<ParamField path="meetings.zoom.account_id" type="string">
+<ParamField path="meetings.zoom.account_id" type="string" required>
   Zoom account identifier (Server-to-Server OAuth app).
 </ParamField>
 
-<ParamField path="meetings.zoom.client_id" type="string">
+<ParamField path="meetings.zoom.client_id" type="string" required>
   OAuth client ID for the Zoom Server-to-Server app.
 </ParamField>
 
-<ParamField path="meetings.zoom.client_secret" type="string">
+<ParamField path="meetings.zoom.client_secret" type="string" required>
   OAuth client secret for the Zoom Server-to-Server app.
 </ParamField>
 
-<ParamField path="meetings.zoom.host_pool_users" type="string[]">
+<ParamField path="meetings.zoom.host_pool_users" type="string[]" required>
   List of Zoom user email addresses to use as meeting hosts. Must contain at
-  least one entry when Zoom is enabled. Duplicate or invalid email addresses
-  are rejected at startup.
+  least one valid, unique email address when Zoom is enabled. Duplicate or
+  invalid email addresses are rejected at startup.
 </ParamField>
 
-<ParamField path="meetings.zoom.max_participants" type="number" default="100">
+<ParamField path="meetings.zoom.max_participants" type="number" required>
   Maximum number of participants allowed per meeting. Should reflect the
   limit on your Zoom plan.
 </ParamField>
 
-<ParamField path="meetings.zoom.max_simultaneous_meetings_per_host" type="number" default="1">
+<ParamField path="meetings.zoom.max_simultaneous_meetings_per_host" type="number" required>
   Maximum number of overlapping meetings a single host user can run at one
   time. Must be `>= 1`.
 </ParamField>
 
-<ParamField path="meetings.zoom.webhook_secret_token" type="string">
+<ParamField path="meetings.zoom.webhook_secret_token" type="string" required>
   Secret token used to verify the signature on incoming Zoom webhook events.
 </ParamField>

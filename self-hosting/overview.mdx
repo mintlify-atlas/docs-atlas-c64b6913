@@ -114,6 +114,33 @@ its own configuration file (`redirector.yml`) and a separate database connection
   </Step>
 </Steps>
 
+## Redirector configuration (`redirector.yml`)
+
+The `ocg-redirector` uses its own config file with a subset of fields. The `OCG_` environment variable prefix and `__` separator also apply.
+
+```yaml redirector.yml
+db:
+  host: localhost
+  port: 5432
+  dbname: ocg
+  user: ocg
+  password: "changeme"
+
+log:
+  format: json
+
+server:
+  addr: "0.0.0.0:9001"
+  base_redirect_url: "https://groups.example.com"
+```
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `db.*` | object | — | Same PostgreSQL connection fields as the main server config |
+| `log.format` | string | `json` | Log output format: `json` or `pretty` |
+| `server.addr` | string | `127.0.0.1:9001` | Address and port the redirector listens on |
+| `server.base_redirect_url` | string | required | Base URL used as the redirect target. Must be an absolute `http(s)` URL. |
+
 <Note>
   For production Kubernetes deployments, use the Helm chart — it handles the
   database migrator job, config secret management, init container ordering, and

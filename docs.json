@@ -7,6 +7,7 @@
     "light": "#fcfcfc",
     "dark": "#040404"
   },
+  "favicon": "/favicon.svg",
   "logo": {
     "light": "https://media.brand.dev/51cb2f96-a3b3-42d8-9f04-575a57b4a1e7.png",
     "dark": "https://media.brand.dev/cf4448f4-9214-4387-9fb5-e4fe86e291ef.png"
