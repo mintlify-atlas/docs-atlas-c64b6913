@@ -1,0 +1,99 @@
+---
+title: "Choose your dashboard"
+description: "Understand the three OCG dashboards and pick the right workspace for your role."
+---
+
+OCG has three dashboards, each supporting a different kind of work: personal tasks (User), community management (Community), and group or event management (Group).
+
+<CardGroup cols={3}>
+  <Card title="User Dashboard" icon="user" href="/guides/user-dashboard">
+    Manage your profile, invitations, session proposals, and submission history. Available to every logged-in user.
+  </Card>
+  <Card title="Community Dashboard" icon="building" href="/guides/community-dashboard">
+    Manage community-wide identity, team access, taxonomy, analytics, and groups. Requires community-team membership.
+  </Card>
+  <Card title="Group Dashboard" icon="users" href="/guides/group-dashboard">
+    Run events, organizers, members, sponsors, and day-to-day operations. Requires group-team membership.
+  </Card>
+</CardGroup>
+
+## Pick the right workspace
+
+Start with what you need to do, not the menu label:
+
+| If you need to... | Use this dashboard | Who gets it | Core outcomes |
+| --- | --- | --- | --- |
+| Manage your profile, invitations, proposals, and submissions | User Dashboard | Any logged-in user | Keep profile current, accept invitations, submit to CFS |
+| Manage community-wide identity, admins, taxonomy, analytics, and groups | Community Dashboard | Community team members | Manage team access, branding, regions, categories, analytics, and groups |
+| Run events, organizers, members, sponsors, and day-to-day operations | Group Dashboard | Group team members | Deliver events, manage members, coordinate organizers and sponsors |
+
+## Access model
+
+Dashboard visibility depends on your role. If a dashboard is missing from your menu, your account does not currently have access to it.
+
+The two organizer dashboards also depend on selected context:
+
+- **Community Dashboard** requires a selected community.
+- **Group Dashboard** requires both a selected community and a selected group.
+
+<Note>
+  Dashboard access is based on team membership, not a setting you can toggle. If a dashboard entry is missing, you either do not have access yet or have not selected the right context.   Accept any pending invitations in **User Dashboard → Invitations** and refresh the page.
+</Note>
+
+## Fixed role model
+
+OCG uses fixed roles for community and group management. Roles are assigned per team member and define what operations are allowed.
+
+<Tabs>
+  <Tab title="Community roles">
+    | Role | What it can do |
+    | --- | --- |
+    | `admin` | Full community management (settings, taxonomy, team, groups) and group-level write operations in that community |
+    | `groups-manager` | Manage groups and group-level write operations in that community, without community settings, taxonomy, or team control |
+    | `viewer` | Read-only access |
+
+    Controls are disabled in the UI when your role cannot perform an operation. Server-side authorization still enforces permissions even if a request is sent manually.
+  </Tab>
+  <Tab title="Group roles">
+    | Role | What it can do |
+    | --- | --- |
+    | `admin` | Full group management (events, members, settings, sponsors, team) |
+    | `events-manager` | Event operations only (events) |
+    | `viewer` | Read-only access |
+
+    Controls are disabled in the UI when your role cannot perform an operation. Server-side authorization still enforces permissions even if a request is sent manually.
+  </Tab>
+</Tabs>
+
+## How to check your access
+
+Open your avatar menu in the top-right corner. The dashboards listed there are the ones your account can access right now.
+
+If a dashboard you expect is missing, use this order to unblock quickly:
+
+  1. Open **User Dashboard → Invitations**.
+  2. Accept any pending community or group invitations.
+  3. Refresh the page (or sign out and sign back in).
+  4. Re-open your avatar menu and check for new dashboard entries.
+
+If visibility still does not update, see [Troubleshooting](/support/troubleshooting).
+
+## Typical starting paths
+
+<Tabs>
+  <Tab title="Member or speaker">
+    Start in the **User Dashboard**. Complete your profile, then create session proposals only when you need to submit to an event's Call for Speakers.
+
+    Continue with the [User Dashboard Guide](/guides/user-dashboard) and [Public Site Guide](/guides/public-site).
+  </Tab>
+  <Tab title="Community lead">
+    Start in **Community Dashboard → Settings** to verify settings and team membership. Then review Regions, Group Categories, and Event Categories. Move to Groups after taxonomy and ownership structure are in place.
+
+    Continue with the [Community Dashboard Guide](/guides/community-dashboard).
+  </Tab>
+  <Tab title="Group organizer">
+    Start in **Group Dashboard → Settings** and move straight into Events, because event setup, publishing, attendance, and submissions are the operational center of group work.
+
+    Continue with the [Group Dashboard Guide](/guides/group-dashboard) and [Event Operations](/guides/event-operations).
+  </Tab>
+</Tabs>

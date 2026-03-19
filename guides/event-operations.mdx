@@ -1,0 +1,384 @@
+---
+title: "Event Operations"
+description: "Run the full event lifecycle in OCG: draft creation, configuration, publishing, delivery-day execution, and controlled retirement."
+---
+
+This guide covers the full event lifecycle in **Group Dashboard → Events**: draft creation, configuration, publishing, delivery-day execution, and controlled retirement.
+
+For scope boundaries and non-event responsibilities, pair this with the [Group Dashboard Guide](/guides/group-dashboard).
+
+## Lifecycle model
+
+Treat event operations as a staged workflow, not one big form submission:
+
+<Steps>
+  <Step title="Build a complete draft">
+    Author all editor tabs until the event is trustworthy and ready for public eyes.
+  </Step>
+  <Step title="Publish when attendee-facing data is ready">
+    Only publish once name, dates, venue, and logistics are confirmed. Publishing can notify participants.
+  </Step>
+  <Step title="Run delivery-day operations">
+    Use the Attendees tab for check-in, manual attendance, and operational emails.
+  </Step>
+  <Step title="Retire intentionally">
+    Use unpublish, cancel, or delete based on the operational goal. Each action has different notification and meeting-sync behavior.
+  </Step>
+</Steps>
+
+When phase 1 is done well, every downstream step is faster and safer.
+
+## Authorization model
+
+Event write operations require the `group.events.write` permission, granted by:
+
+| Role | Scope |
+|---|---|
+| Group `admin` | Group level |
+| Group `events-manager` | Group level |
+| Community `admin` | All groups in the community |
+| Community `groups-manager` | All groups in the community |
+
+Read-only roles can still view event data but cannot mutate it.
+
+<Info>
+  Event action controls are disabled in the UI when your role cannot perform the operation. Middleware authorization is enforced server-side for every write endpoint.
+</Info>
+
+## Events list: work queue
+
+The **Events** tab is your organizer queue. **Upcoming events** and **Past events** help you separate work that needs intervention now from historical cleanup.
+
+From each row you can:
+
+- Create with **Add event**.
+- Open edit mode.
+- Open the public event page (when available).
+- Publish or unpublish.
+- Cancel.
+- Delete.
+
+### Event states
+
+| State | Meaning |
+|---|---|
+| `Draft` | Still being authored — not visible to the public |
+| `Published` | Live for public participation |
+| `Canceled` | Visible as canceled and no longer running |
+
+## Add Event: draft first
+
+The safest pattern is draft-first, publish-second.
+
+<Steps>
+  <Step title="Click Add Event">
+    Open the event editor from the Events list.
+  </Step>
+  <Step title="Optionally copy an earlier event">
+    Reuse the structure of a previous event to reduce setup time.
+  </Step>
+  <Step title="Complete each editor tab">
+    Work through Details, Date and Venue, Hosts and Speakers, Sessions, CFS, and Attendees.
+  </Step>
+  <Step title="Save">
+    Save the draft at any point — it stays unpublished until you explicitly publish.
+  </Step>
+  <Step title="Publish after a full quality pass">
+    Review all tabs before publishing. Publish can trigger notifications to group members and listed speakers.
+  </Step>
+</Steps>
+
+<Tip>
+  After copying an event, run a quick logistics sweep before publishing. Start/end dates, sessions, meeting links, and some host/speaker fields are intentionally not carried forward to avoid stale logistics.
+</Tip>
+
+## Event editor tabs
+
+The editor is organized so you can move from identity, to schedule, to speakers, to operations.
+
+### Details
+
+Define attendee-facing identity and enrollment posture: name, event type, category, description, branding assets, capacity, registration toggle, tags, and optional links.
+
+Event category options come from the community's **Event Categories** tab in the Community Dashboard.
+
+**Publish readiness checks:**
+
+- Name, type, category, and description are complete and clear.
+- Branding is consistent with group and community standards.
+- Capacity and registration policy match expected demand.
+
+**Brand inheritance model:**
+
+- If event logo is not provided, OCG falls back to group logo, then community logo.
+- If event banner or mobile banner is not provided, OCG falls back to group banner, then community banner.
+
+### Date and Venue
+
+This tab controls delivery constraints.
+
+<Tabs>
+  <Tab title="In-person / hybrid">
+    Configure venue name, address, and map coordinates for in-person attendees.
+  </Tab>
+  <Tab title="Virtual / hybrid">
+    Configure online event details: manual meeting URL or automatic meeting creation. See [Automatic Meeting Creation](#automatic-meeting-creation) for full Zoom integration details.
+  </Tab>
+</Tabs>
+
+Additional controls in this tab:
+
+- **Timezone** — Set this first, then date and time, to avoid accidental scheduling drift and keep CFS windows aligned with the intended audience clock.
+- **Start and end** — Full date and time for the event.
+- **Send Event Reminder** — When enabled, OCG sends reminder messages approximately 24 hours before start time.
+
+<Tip>
+  Set timezone first, then start/end timestamps, to avoid accidental schedule drift.
+</Tip>
+
+### Hosts and Speakers
+
+Manage event-level people and sponsor attribution:
+
+- Add hosts from any user account on the site.
+- Add visible speakers and presenters.
+- Attach event sponsors from reusable sponsor records.
+
+This is where attendees understand who is running and presenting the program.
+
+### Sessions
+
+Turn approved content into an actual agenda:
+
+- Create agenda rows with time bounds.
+- Keep session times inside event start and end.
+- Link approved CFS submissions into the schedule.
+
+<Note>
+  The Sessions tab is most useful once review outcomes are clearer and your schedule is taking final shape.
+</Note>
+
+### CFS
+
+Configure speaker intake:
+
+- Enable or disable CFS.
+- Set open and close timestamps.
+- Write the CFS description shown on the event page.
+- Define optional labels (tracks, topics, or themes).
+
+<Warning>
+  Renaming a label updates all existing submissions that already reference that label.
+</Warning>
+
+### Submissions
+
+The reviewer control center:
+
+- Filter by labels.
+- Sort by submission time, rating count, or stars.
+- Open the review modal.
+- Update status and add reviewer feedback.
+
+**Reviewer-facing statuses:**
+
+| Status | Meaning |
+|---|---|
+| Not reviewed | Submission is in the queue |
+| Information requested | More information needed from the speaker |
+| Approved | Submission accepted for the program |
+| Rejected | Submission not selected |
+
+**Rating submissions:**
+
+Reviewers can rate each submission on a 1–5 star scale with an optional comment. Ratings are internal only — speakers never see ratings or rating notes. The review modal shows a dedicated **Ratings** tab where you can set, update, or clear your rating. Other reviewers' ratings and comments are visible in the same tab so the team can compare assessments.
+
+The submissions list displays the average rating and total rating count for each entry. Use the sort options (by stars or rating count) to surface the strongest or most-reviewed submissions quickly.
+
+<Note>
+  When a reviewer update requires notifying the speaker, OCG sends a submission update message automatically.
+</Note>
+
+### Attendees
+
+Supports delivery-day execution:
+
+- Review attendee list and RSVP timing.
+- Run manual check-in.
+- Generate check-in QR code for on-site flow.
+- Send attendee-wide operational emails.
+
+<Info>
+  Manual check-in bypasses attendee self-check-in timing windows, but the person must already be registered as an attendee and the event must still be published or active.
+</Info>
+
+**Send email** in this tab sends operational updates to all attendees.
+
+## CFS workflow (end to end)
+
+CFS spans organizer setup, speaker submission, and review loop. Treat it as one connected system.
+
+<Steps>
+  <Step title="Organizer configures CFS">
+    Enable CFS in the event editor, set open/close timestamps, write the CFS description, and define optional labels.
+  </Step>
+  <Step title="Organizer publishes the event">
+    CFS becomes visible to potential speakers once the event is published.
+  </Step>
+  <Step title="Speaker prepares reusable proposals">
+    Speakers create proposals in **User Dashboard → Session proposals**.
+  </Step>
+  <Step title="Speaker submits from the event page">
+    Speaker opens the CFS modal on the event page and submits an eligible proposal.
+  </Step>
+  <Step title="Organizer reviews submissions">
+    Organizer works through submissions in **Group Dashboard → Event → Submissions**, using ratings, labels, and status updates.
+  </Step>
+  <Step title="Speaker tracks outcomes">
+    Speaker monitors review progress in **User Dashboard → Submissions**.
+  </Step>
+  <Step title="Approved submissions are scheduled">
+    Organizer links approved submissions into the Sessions tab to build the final agenda.
+  </Step>
+</Steps>
+
+### CFS submission requirements
+
+<Warning>
+  CFS submission requires a published event, enabled and open CFS, and an eligible proposal. Duplicate submission of the same proposal to the same event is blocked.
+</Warning>
+
+| Requirement | Detail |
+|---|---|
+| Event state | Must be published |
+| CFS enabled | Must be enabled in the CFS tab |
+| CFS window | Must be currently open |
+| Proposal eligibility | Proposal must be in a submittable state |
+| Duplicate check | Same proposal cannot be submitted twice to the same event |
+| Label validity | Labels must belong to that event's label set |
+
+### Response loop behavior
+
+| Status | What happens next |
+|---|---|
+| Information requested | Speaker is asked for changes before re-review; **Resubmit** appears in their dashboard |
+| Resubmit | Used after requested changes are addressed |
+| Withdrawn | Speaker-initiated; typically ends active review |
+
+Every review-side change that should reach the speaker is sent as a submission update message.
+
+For the submitter-side perspective, see the [User Dashboard Guide](/guides/user-dashboard).
+
+## Automatic meeting creation
+
+Automatic meetings are configured in **Date and Venue → Online event details**. You can either use your own manual meeting link or let OCG create and manage a meeting automatically.
+
+### How automatic mode works
+
+<Steps>
+  <Step title="Choose automatic creation">
+    Select **Create meeting automatically** in the Online event details section.
+  </Step>
+  <Step title="Select provider">
+    Choose a provider — currently **Zoom**.
+  </Step>
+  <Step title="Add host emails (optional)">
+    Add host emails for meeting coordination.
+  </Step>
+  <Step title="Save the event">
+    Save to persist your automatic meeting configuration.
+  </Step>
+  <Step title="Publish to trigger creation">
+    Publishing the event triggers meeting creation and sync.
+  </Step>
+  <Step title="Wait for sync">
+    The join link and password appear in the editor once the meeting is ready.
+  </Step>
+</Steps>
+
+Meetings are automatically ended when the configured end time is reached.
+
+### Requirements for automatic mode
+
+<Warning>
+  Automatic meetings are supported only for `virtual` and `hybrid` events and require valid schedule and capacity constraints. Manual and automatic meeting modes cannot be used together.
+</Warning>
+
+| Requirement | Detail |
+|---|---|
+| Event type | Must be `virtual` or `hybrid` |
+| Schedule | Start and end must be set; end must be after start |
+| Duration | Must be within provider limits (5 to 720 minutes) |
+| Capacity | Event capacity must be set |
+| Participant limit | Capacity cannot exceed the configured provider participant limit |
+| Meeting mode | Manual meeting links must not be in use at the same time |
+
+### Important limitations
+
+<Warning>
+  Switching meeting modes can replace or remove meeting details. Constraint violations can disable automatic mode until fixed.
+</Warning>
+
+- In-person events cannot use automatic meetings.
+- Due to current technical limitations, host controls are not available in automatically created Zoom meetings.
+- Switching automatic to manual can remove auto-created meeting details.
+- Switching manual to automatic can replace existing manual links.
+- Schedule or type changes can disable automatic mode if constraints are no longer met.
+- If sync fails, meeting errors surface in the editor until resolved.
+- In deployments without automatic-meeting support, only manual meeting URL fields are available.
+
+## Publish, unpublish, cancel, delete
+
+These actions serve different intents — use the least destructive action that matches your operational goal.
+
+| Action | Intent | Notifies participants? |
+|---|---|---|
+| `Publish` | Make event publicly available | Yes — group members, team members, and listed speakers (future events) |
+| `Unpublish` | Hide event without canceling it | No |
+| `Cancel` | Mark event as not proceeding | Yes — attendees and speakers (future published events) |
+| `Delete` | Permanently remove from normal operations | No |
+
+### Notification details
+
+<Warning>
+  **Publish** and **Cancel** can notify large participant sets. **Unpublish** and **Delete** do not send broad attendee updates.
+</Warning>
+
+- **Publish** on a future unpublished event can notify group members, team members, and listed speakers.
+- **Cancel** on a future published event notifies attendees and speakers.
+- Rescheduling a future published event can notify attendees and speakers when the start or end time changes by at least 15 minutes.
+
+### Automatic-meeting lifecycle
+
+- **Publish** triggers creation/sync for configured automatic meetings (event and session meetings).
+- **Unpublish**, **Cancel**, and **Delete** trigger removal/sync for configured automatic meetings.
+
+## Public event result
+
+The public event page is the delivery surface of all organizer decisions: RSVP controls, logistics, CFS visibility, and the final agenda experience. You can reach it through the **Explore** page on the public site.
+
+For the attendee and member perspective, see the [Public Site Guide](/guides/public-site).
+
+## Event-day checklist
+
+<Tip>
+  Run this checklist shortly before start time to catch delivery issues early.
+</Tip>
+
+<Steps>
+  <Step title="Confirm attendee table loads">
+    Open the **Attendees** tab and verify the attendee list is populated correctly.
+  </Step>
+  <Step title="Validate check-in QR code">
+    Open the QR flow and confirm the check-in URL is correct and functional.
+  </Step>
+  <Step title="Test one manual check-in path">
+    Use manual check-in on a test attendee to confirm the flow works end to end.
+  </Step>
+  <Step title="Prepare attendee email template">
+    Draft an attendee email template in case you need to send urgent updates during the event.
+  </Step>
+  <Step title="Verify schedule and meeting links">
+    Re-check session times and any virtual meeting links before start time.
+  </Step>
+</Steps>

@@ -1,0 +1,263 @@
+---
+title: "Community Dashboard Guide"
+description: "Manage community-wide identity, team access, taxonomy, analytics, and groups portfolio from the OCG community dashboard."
+---
+
+Use the Community Dashboard to manage community-wide settings and operations: identity, governance, taxonomy, team access, analytics, and groups.
+
+Path: `/dashboard/community`
+
+<Note>
+  If you are deciding workspace scope first, read [Choose Your Dashboard](/getting-started/choose-dashboard).
+</Note>
+
+## What this dashboard owns
+
+Use the community scope to manage the structure shared by all groups. You are not running one event here — you are shaping how the whole community is presented and managed.
+
+<CardGroup cols={2}>
+  <Card title="Settings" icon="gear">
+    Community identity, branding, social presence, and long-form content.
+  </Card>
+  <Card title="Team" icon="users">
+    Community-level admins and invitation flow.
+  </Card>
+  <Card title="Regions" icon="map-pin">
+    Community geography model for group classification.
+  </Card>
+  <Card title="Group Categories" icon="tag">
+    Reusable taxonomy for groups.
+  </Card>
+  <Card title="Event Categories" icon="calendar">
+    Reusable taxonomy for events.
+  </Card>
+  <Card title="Analytics" icon="chart-line">
+    Community growth trends and volume metrics.
+  </Card>
+  <Card title="Groups" icon="layer-group">
+    Group creation, maintenance, activation state, and lifecycle transitions.
+  </Card>
+</CardGroup>
+
+## Access and context
+
+You are ready to work in this dashboard when:
+
+1. You are logged in.
+2. Your account is on the community team.
+3. A community is selected in dashboard context.
+
+If no community is selected yet, some actions stay unavailable until you choose one.
+
+For invitation acceptance and dashboard access, see the [User Dashboard Guide](/guides/user-dashboard).
+
+## Roles and permissions
+
+Community role permissions are fixed and enforced by middleware plus database checks:
+
+| Community role | Community read | Groups | Settings | Taxonomy | Team |
+|---|---|---|---|---|---|
+| `admin` | Yes | Write | Write | Write | Write |
+| `groups-manager` | Yes | Write | Read only | Read only | Read only |
+| `viewer` | Yes | Read only | Read only | Read only | Read only |
+
+### Community role impact on group operations
+
+- `admin` and `groups-manager` can perform group write operations (`events`, `members`, `settings`, `sponsors`, `team`) without needing group-team role assignment.
+- `viewer` keeps read-only visibility at group scope.
+
+<Info>
+  When your role cannot perform an action, controls are disabled in the UI. Server-side authorization blocks unauthorized requests regardless of UI state.
+</Info>
+
+## Settings: community identity
+
+**Settings** is where you shape how the community appears publicly and how organizers enrich it over time.
+
+<AccordionGroup>
+  <Accordion title="General Settings">
+    Keep display name and description accurate and up to date.
+  </Accordion>
+  <Accordion title="Branding">
+    Maintain logo and banner assets for consistent public presentation across all groups.
+  </Accordion>
+  <Accordion title="Social Links">
+    Manage links to the community's external social profiles and website.
+  </Accordion>
+  <Accordion title="Advertisement">
+    Ad placements are configured here but are not yet displayed on the public site (coming soon).
+  </Accordion>
+  <Accordion title="Additional Content">
+    Manage optional gallery images, tags, and extra links for the community page.
+  </Accordion>
+</AccordionGroup>
+
+Field requirements, character limits, and list limits are shown inline in the settings UI.
+
+## Team: community access
+
+Use **Team** to invite members with a community role, update existing roles, or remove members.
+
+### Assignable roles
+
+- `admin`
+- `groups-manager`
+- `viewer`
+
+### Safety rules
+
+<Warning>
+  The final accepted community admin cannot be removed or demoted. Add another accepted member first, then retry removal.
+</Warning>
+
+Pending states are visible (**Invitation sent**) so you can tell the difference between invited and fully active collaborators.
+
+    When you add a team member, OCG sends an invitation with a direct link to **User Dashboard → Invitations**.
+
+## Regions: geographic scope
+
+**Regions** is the community-level geography list used by groups. Group setup and edit forms select region values from this list, and public discovery can filter by region.
+
+You can:
+
+- Add regions.
+- Rename existing regions.
+- Delete retired regions.
+
+### Operational rules
+
+| Rule | Detail |
+|---|---|
+| Uniqueness | Region names must be unique within the selected community |
+| Deletion guard | Blocked when one or more groups still use that region |
+| Dependency visibility | Table shows a **Groups** count per region |
+
+## Group categories: group taxonomy
+
+**Group Categories** defines reusable category values for all groups in the selected community. Group setup and edit forms select from this list, and public discovery can filter by group category.
+
+You can:
+
+- Add group categories.
+- Rename existing categories.
+- Delete unused categories.
+
+### Operational rules
+
+| Rule | Detail |
+|---|---|
+| Uniqueness | Category names must be unique within the selected community |
+| Deletion guard | Blocked when one or more groups still use that category |
+| Dependency visibility | Table shows a **Groups** count per category |
+
+## Event categories: event taxonomy
+
+**Event Categories** defines reusable category values for events across the selected community. The event editor **Details** tab uses this list, and public event discovery can filter by event category.
+
+You can:
+
+- Add event categories.
+- Rename existing categories.
+- Delete unused categories.
+
+### Operational rules
+
+| Rule | Detail |
+|---|---|
+| Uniqueness | Category names must be unique within the selected community |
+| Deletion guard | Blocked when one or more events still use that category |
+| Dependency visibility | Table shows an **Events** count per category |
+
+## Analytics: momentum
+
+Community analytics shows totals and trends for:
+
+- Groups
+- Members
+- Events
+- Attendees
+- Page views for the community page, all group pages, and all event pages
+
+Each metric is available as total, running total, and monthly values — helping you spot steady progress and notice unusual jumps with better context. The **Page views** tab also includes a daily chart for the last month for each page type.
+
+<Info>
+  Analytics data is cached and may lag by a few minutes.
+</Info>
+
+## Groups: portfolio
+
+**Groups** is where community leads create and maintain the collection of groups under the community umbrella. Group records rely on taxonomy values from community-level **Regions** and **Group Categories**.
+
+You can:
+
+- Search groups.
+- Add or update groups.
+- Activate or deactivate groups.
+- Delete retired groups.
+- Open a group in the **Group Dashboard** for deeper operational work.
+
+### Group activity states
+
+| State | Meaning |
+|---|---|
+| `Active` | Group is available for normal public participation |
+| `Inactive` | Group is paused and can be reactivated later |
+
+When a group is inactive, its public-view shortcut is disabled in the groups table.
+
+### Adding a new group
+
+**Add Group** starts with the basics first, then lets you add branding, location, links, and optional content before launch.
+
+**Brand inheritance when fields are empty:**
+
+- If group logo is empty, the public group view uses the community logo.
+- If group banner or mobile banner is empty, the public group view uses the community banner.
+
+### Group lifecycle actions
+
+<AccordionGroup>
+  <Accordion title="Activate">
+    Restores visibility and operational flow. Use when bringing a paused group back into service.
+  </Accordion>
+  <Accordion title="Deactivate">
+    Pauses activity while preserving all metadata. Use when a group is temporarily not running events.
+  </Accordion>
+  <Accordion title="Delete">
+    Permanent retirement for groups that should no longer exist operationally. This action cannot be undone.
+  </Accordion>
+</AccordionGroup>
+
+For execution workflows inside a specific group, continue with the [Group Dashboard Guide](/guides/group-dashboard).
+
+## Recommended cadence
+
+<Tip>
+  Use a recurring monthly or biweekly rhythm so identity, access, and group structure stay healthy.
+</Tip>
+
+<Steps>
+  <Step title="Review Settings monthly">
+    Check display name, description, and branding assets for accuracy.
+  </Step>
+  <Step title="Keep Team membership current">
+    Remove departed members and resolve stale pending invitations to avoid operational bottlenecks.
+  </Step>
+  <Step title="Audit Regions">
+    Remove retired region labels so geography filters stay clean and useful.
+  </Step>
+  <Step title="Audit Group Categories">
+    Remove stale taxonomy values so group classification stays meaningful.
+  </Step>
+  <Step title="Audit Event Categories">
+    Evolve category labels as your event programs change over time.
+  </Step>
+  <Step title="Check Analytics for trend shifts">
+    Review growth and page view trends on a regular cadence to spot unusual changes.
+  </Step>
+  <Step title="Maintain Groups portfolio">
+    Retire stale groups and support active ones so the portfolio reflects current operations.
+  </Step>
+</Steps>
+
+For event lifecycle operations after handoff to group teams, see [Event Operations](/guides/event-operations).

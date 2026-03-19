@@ -1,0 +1,122 @@
+---
+title: "Self-hosting overview"
+description: "Deploy Open Community Groups on your own infrastructure."
+---
+
+<Warning>
+  Self-hosting support is in beta. APIs, configuration schemas, and Helm chart
+  values may change between releases. Review the changelog before upgrading.
+</Warning>
+
+Open Community Groups (OCG) is a CNCF events and community platform built with Rust
+(Axum), PostgreSQL, and server-side HTML templates. You can run it on your own
+infrastructure using either a single Docker container or the official Helm chart for
+Kubernetes.
+
+## Architecture
+
+A minimal OCG deployment consists of three components:
+
+| Component | Description |
+|---|---|
+| **ocg-server** | Axum web server — serves the full application on port `9000` |
+| **PostgreSQL** | Primary data store (schema managed by `ocg/dbmigrator`) |
+| **S3-compatible storage** *(optional)* | Object storage for group and event images. Defaults to storing images in PostgreSQL. |
+
+Optionally, you can enable the **ocg-redirector** sidecar. It is a lightweight
+process that handles legacy URL redirects and listens on port `9001`. It requires
+its own configuration file (`redirector.yml`) and a separate database connection.
+
+## System requirements
+
+- **PostgreSQL** 17 or later
+- **SMTP server** — required for email-based login and notifications
+- **S3-compatible object storage** — optional; images are stored in PostgreSQL by
+  default. Required when running multiple server replicas.
+- **Zoom account** — optional; required only when the Zoom meetings integration is
+  enabled
+- **Kubernetes ≥ 1.19** — only for the Helm deployment path
+
+## Deployment options
+
+<CardGroup cols={2}>
+  <Card title="Configuration" icon="sliders" href="/self-hosting/configuration">
+    Environment variables, YAML config file structure, and all available
+    configuration fields with types and defaults.
+  </Card>
+  <Card title="Kubernetes" icon="server" href="/self-hosting/kubernetes">
+    Deploy using the official Helm chart (`ocg`), including ingress, secrets
+    management, and the database migrator job.
+  </Card>
+</CardGroup>
+
+## High-level deployment flow
+
+<Steps>
+  <Step title="Provision external dependencies">
+    Create a PostgreSQL database and user, an SMTP account for sending email,
+    and optionally an S3 bucket for image storage.
+
+    ```sql
+    CREATE USER ocg WITH PASSWORD 'your-password';
+    CREATE DATABASE ocg OWNER ocg;
+    ```
+  </Step>
+
+  <Step title="Configure the server">
+    Create a `server.yml` configuration file (or supply environment variables
+    prefixed with `OCG_`). At minimum you need database credentials, SMTP
+    settings, and a `server.base_url` pointing to your public hostname.
+
+    See [Configuration](/self-hosting/configuration) for the full reference.
+  </Step>
+
+  <Step title="Run database migrations">
+    Before starting the server for the first time, run the `ocg/dbmigrator`
+    container (or the `migrate.sh` script) against your database. This applies
+    the full schema defined in the `database/migrations/` directory.
+
+    ```bash
+    docker run --rm \
+      -e TERN_CONF=/config/tern.conf \
+      -v /path/to/your/config:/config \
+      ocg/dbmigrator:v0.1.0 ./migrate.sh
+    ```
+  </Step>
+
+  <Step title="Start ocg-server">
+    Launch the server container. It reads configuration from the file path
+    passed with the `-c` flag.
+
+    ```bash
+    docker run -d \
+      --name ocg-server \
+      -p 9000:9000 \
+      -v /path/to/your/config:/home/ocg/.config/ocg:ro \
+      ocg/server:v0.1.0 ocg-server -c /home/ocg/.config/ocg/server.yml
+    ```
+
+    The server exposes a health check endpoint at `GET /health-check`.
+  </Step>
+
+  <Step title="(Optional) Enable ocg-redirector">
+    If you need legacy URL redirect support, run the `ocg/redirector` container
+    alongside the server. It requires a `redirector.yml` config file with
+    database access and the `server.base_redirect_url` field set.
+
+    ```bash
+    docker run -d \
+      --name ocg-redirector \
+      -p 9001:9001 \
+      -v /path/to/your/config:/home/ocg/.config/ocg:ro \
+      ocg/redirector:v0.1.0 ocg-redirector -c /home/ocg/.config/ocg/redirector.yml
+    ```
+  </Step>
+</Steps>
+
+<Note>
+  For production Kubernetes deployments, use the Helm chart — it handles the
+  database migrator job, config secret management, init container ordering, and
+  ingress configuration automatically. See
+  [Kubernetes deployment](/self-hosting/kubernetes).
+</Note>

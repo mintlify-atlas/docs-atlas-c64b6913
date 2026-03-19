@@ -1,0 +1,151 @@
+---
+title: "Public Site Guide"
+description: "Discover communities, join groups, RSVP to events, check in on event day, and submit to Call for Speakers from the OCG public site."
+---
+
+The public site is where people discover communities, join groups, RSVP to events, check in, and — when enabled — submit talks to Call for Speakers.
+
+If you prefer a faster task-oriented run-through first, use the [Quickstart](/getting-started/quickstart).
+
+## Core pages
+
+| Page | Path | Why it matters |
+|---|---|---|
+| Home | `/` | Platform overview, featured communities, curated upcoming events |
+| Explore | `/explore` | Search and filter events or groups with multiple views |
+| Stats | `/stats` | Platform-level growth and trend visibility |
+| Community page | `/{community}` | Community identity, activity, and top-level context |
+| Group page | `/{community}/group/{group_slug}` | Membership entry point and group-specific event stream |
+| Event page | `/{community}/group/{group_slug}/event/{event_slug}` | RSVP, schedule, CFS, and delivery details |
+| Check-in page | `/{community}/check-in/{event_id}` | Event-day attendance confirmation |
+
+## Discover quickly in Explore
+
+**Explore** is designed to help you move from "too many options" to a confident choice.
+
+For events, begin broad and narrow in this order: community, type, category, and date range. Keeping this order avoids over-filtering too early.
+
+<Tip>
+  Start with community, then add type, category, and date range only if you need to narrow results further.
+</Tip>
+
+Explore gives you multiple view styles depending on what you are browsing:
+
+<Tabs>
+  <Tab title="Events views">
+    - **List** — Scan titles, dates, and descriptions quickly.
+    - **Calendar** — Plan around time conflicts and busy periods.
+  </Tab>
+  <Tab title="Groups views">
+    - **List** — Scan group names and descriptions quickly.
+    - **Map** — Find nearby groups when place matters.
+  </Tab>
+</Tabs>
+
+## Join groups
+
+Joining a group is how you stay connected to a community over time. Events come and go, but groups are where ongoing participation happens.
+
+On the group page, **Join group** adds you as a member. If you later step back, **Leave group** removes you from the group.
+
+<AccordionGroup>
+  <Accordion title="Helpful details about joining">
+    - Logged-out users are prompted to sign in with Linux Foundation SSO.
+    - The join button may take a moment to update after the page loads.
+    - After you join, OCG sends a welcome message with a link back to the group page.
+  </Accordion>
+</AccordionGroup>
+
+## RSVP and attend events
+
+The event page is the best place to check event details. Use it for RSVP, logistics, links, and speaker-program status.
+
+Click **Attend event** to RSVP. If the event is virtual or hybrid and meeting access is configured, attendees can see **Join meeting** when the event is live.
+
+<Warning>
+  RSVP is only available before event start time. You must RSVP first to be eligible for event-day check-in.
+</Warning>
+
+<AccordionGroup>
+  <Accordion title="Helpful details about RSVP">
+    - The RSVP button may take a moment to update after the page loads.
+    - RSVP actions are available only before the event start time.
+    - Canceling RSVP is immediate through **Cancel attendance**.
+    - After RSVP, OCG sends a confirmation message with a calendar file attached.
+  </Accordion>
+</AccordionGroup>
+
+## Check in on event day
+
+Check-in confirms that you attended the event, so time limits and attendance rules apply.
+
+### Check-in window rules
+
+| Rule | Detail |
+|---|---|
+| Opens | 2 hours before start time |
+| Closes | End of the event day |
+| Multi-day events | Closes at the end of the last day |
+
+### When check-in is blocked
+
+<Warning>
+  Check-in is only available when you are an attendee, the event is active, and the check-in window is open.
+</Warning>
+
+You cannot check in if:
+
+- You are not an attendee.
+- The event is not published or active.
+- The check-in window is closed.
+
+## Submit to Call for Speakers (CFS)
+
+The CFS flow happens in two places:
+
+<Steps>
+  <Step title="Create reusable proposals">
+    Go to **User Dashboard → Session proposals** and create proposal content you can reuse across multiple events.
+  </Step>
+  <Step title="Submit from the event page">
+    On any event page where CFS is open, submit your proposals. Each event submission is separate and tracks its own status, reviewer feedback, labels, and outcomes.
+  </Step>
+  <Step title="Track progress">
+    Monitor review outcomes in **User Dashboard → Submissions**.
+  </Step>
+</Steps>
+
+<CardGroup cols={2}>
+  <Card title="User Dashboard Guide" icon="user" href="/guides/user-dashboard">
+    Full speaker workflow: proposal creation, co-speaker invitations, and submission tracking.
+  </Card>
+  <Card title="Event Operations" icon="calendar" href="/guides/event-operations">
+    Organizer-side review, CFS configuration, and event lifecycle controls.
+  </Card>
+</CardGroup>
+
+## Use Stats for platform context
+
+**Stats** at `/stats` helps organizers and contributors understand momentum at a glance: groups, members, events, and attendees over time.
+
+## Recommended member flow
+
+<Steps>
+  <Step title="Discover">
+    Browse the **Explore** page to find communities and events that match your interests.
+  </Step>
+  <Step title="Join groups">
+    Join one or more groups to stay connected over time beyond individual events.
+  </Step>
+  <Step title="RSVP to events">
+    RSVP to upcoming events from each event page before start time.
+  </Step>
+  <Step title="Check in on event day">
+    Use the check-in page or QR code to confirm your attendance.
+  </Step>
+  <Step title="Submit talks via CFS">
+    When you are ready to speak, use CFS features to submit proposals to open events.
+  </Step>
+</Steps>
+
+When you transition into organizer responsibilities, see the [Community Dashboard](/guides/community-dashboard) or [Group Dashboard](/guides/group-dashboard) guides.

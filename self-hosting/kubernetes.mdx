@@ -1,0 +1,413 @@
+---
+title: "Kubernetes deployment"
+description: "Deploy Open Community Groups to Kubernetes using the official Helm chart."
+---
+
+The official Helm chart (`ocg`) packages the full OCG stack: the web server,
+database migrator, and optional redirector. The chart bundles the
+[Bitnami PostgreSQL chart](https://github.com/bitnami/charts/tree/main/bitnami/postgresql)
+as an optional dependency for development and testing — in production you should
+provide an external database.
+
+**Chart details**
+
+| Field | Value |
+|---|---|
+| Chart name | `ocg` |
+| Chart version | `0.1.1-1` |
+| App version | `0.1.0` |
+| Minimum Kubernetes version | `>= 1.19.0` |
+| PostgreSQL dependency | Bitnami `18.0.15` |
+
+## Prerequisites
+
+- Kubernetes cluster ≥ 1.19
+- Helm 3
+- An external PostgreSQL 17 database (or use the bundled chart for testing)
+- An SMTP server for outgoing email
+- Container images published to a registry accessible from your cluster
+
+## Install the chart
+
+<Steps>
+  <Step title="Add the chart repository or clone the source">
+    The chart is located in `charts/ocg/` in the OCG repository. If you have
+    a Helm repository configured, add it. Otherwise, clone the source and
+    reference the chart directory directly.
+
+    ```bash
+    git clone https://github.com/cncf/open-community-groups.git
+    cd open-community-groups
+    ```
+  </Step>
+
+  <Step title="Create a values override file">
+    Copy the defaults and override the fields that apply to your environment.
+    At minimum, set database credentials, email settings, and your public
+    hostname.
+
+    ```yaml my-values.yaml
+    db:
+      host: "postgres.internal"
+      port: 5432
+      dbname: ocg
+      user: ocg
+      password: "your-db-password"
+
+    email:
+      fromAddress: noreply@example.com
+      fromName: "Open Community Groups"
+      smtp:
+        host: smtp.example.com
+        port: 587
+        username: noreply@example.com
+        password: "your-smtp-password"
+
+    server:
+      baseUrl: "https://groups.example.com"
+      cookie:
+        secure: true
+      login:
+        email: true
+
+    # Disable the bundled PostgreSQL — use an external database in production
+    postgresql:
+      enabled: false
+    ```
+  </Step>
+
+  <Step title="Run helm install">
+    Install the chart into its own namespace. The database migrator job runs
+    automatically as part of the install, and the server deployment waits for
+    it to complete before starting.
+
+    ```bash
+    helm install ocg ./charts/ocg \
+      --namespace ocg \
+      --create-namespace \
+      --values my-values.yaml
+    ```
+
+    Watch the rollout:
+
+    ```bash
+    kubectl rollout status deployment/server --namespace ocg
+    ```
+  </Step>
+
+  <Step title="Verify the health check">
+    Confirm the server is responding. Port-forward to test without ingress:
+
+    ```bash
+    kubectl port-forward svc/server 9000:80 --namespace ocg
+    curl http://localhost:9000/health-check
+    ```
+  </Step>
+</Steps>
+
+## Key `values.yaml` fields
+
+### Top-level
+
+<ParamField path="imageTag" type="string" default="v{appVersion}">
+  Container image tag used for all OCG images. Defaults to `v0.1.0` (the chart
+  app version). Override when pulling a specific build.
+</ParamField>
+
+<ParamField path="pullPolicy" type="string" default="IfNotPresent">
+  Kubernetes image pull policy. Set to `Always` when using a mutable tag such
+  as `latest`.
+</ParamField>
+
+<ParamField path="imagePullSecrets" type="object[]">
+  List of Kubernetes `imagePullSecret` references. Required when pulling from
+  a private registry.
+</ParamField>
+
+<ParamField path="dynamicResourceNamePrefixEnabled" type="boolean" default="false">
+  When `true`, all Kubernetes resource names are prefixed with the Helm release
+  name. Enables multiple installations in the same namespace.
+</ParamField>
+
+<ParamField path="configDir" type="string" default="/home/ocg/.config/ocg">
+  Directory path inside the container where config files are mounted from
+  the generated Kubernetes Secret.
+</ParamField>
+
+### Database (`db`)
+
+<ParamField path="db.host" type="string">
+  PostgreSQL hostname. Defaults to the bundled PostgreSQL service
+  (`{release-name}-postgresql.{namespace}`) when left empty.
+</ParamField>
+
+<ParamField path="db.port" type="number" default="5432">
+  PostgreSQL port.
+</ParamField>
+
+<ParamField path="db.dbname" type="string" default="ocg">
+  PostgreSQL database name.
+</ParamField>
+
+<ParamField path="db.user" type="string" default="ocg">
+  PostgreSQL username.
+</ParamField>
+
+<ParamField path="db.password" type="string" default="ocg">
+  PostgreSQL password. Use a Kubernetes Secret and `--set` or an encrypted
+  values file in production.
+</ParamField>
+
+### Image storage (`images`)
+
+<ParamField path="images.provider" type="string" default="db">
+  Image storage backend: `db` or `s3`. Use `s3` when running more than one
+  server replica.
+</ParamField>
+
+<ParamField path="images.s3.accessKeyId" type="string">
+  S3 access key ID. Used when `images.provider` is `s3`.
+</ParamField>
+
+<ParamField path="images.s3.secretAccessKey" type="string">
+  S3 secret access key.
+</ParamField>
+
+<ParamField path="images.s3.bucket" type="string">
+  S3 bucket name.
+</ParamField>
+
+<ParamField path="images.s3.region" type="string">
+  S3 region.
+</ParamField>
+
+<ParamField path="images.s3.endpoint" type="string">
+  Custom S3-compatible endpoint URL. Leave `null` for AWS S3.
+</ParamField>
+
+<ParamField path="images.s3.forcePathStyle" type="boolean" default="true">
+  Use path-style S3 requests. Required for MinIO and some other providers.
+</ParamField>
+
+### Server deployment (`server`)
+
+<ParamField path="server.addr" type="string" default="0.0.0.0:9000">
+  Address and port the server listens on inside the container.
+</ParamField>
+
+<ParamField path="server.baseUrl" type="string" required>
+  Public base URL, e.g. `https://groups.example.com`. Replace the placeholder
+  before installing.
+</ParamField>
+
+<ParamField path="server.cookie.secure" type="boolean" default="false">
+  Mark session cookies as HTTPS-only. Set to `true` for all production
+  deployments.
+</ParamField>
+
+<ParamField path="server.disableRefererChecks" type="boolean" default="false">
+  Disable `Referer` header validation on image endpoints.
+</ParamField>
+
+<ParamField path="server.login.email" type="boolean" default="true">
+  Enable email + password login.
+</ParamField>
+
+<ParamField path="server.login.github" type="boolean" default="false">
+  Enable GitHub OAuth2 login.
+</ParamField>
+
+<ParamField path="server.login.linuxfoundation" type="boolean" default="false">
+  Enable Linux Foundation SSO login.
+</ParamField>
+
+<ParamField path="server.deploy.replicaCount" type="number" default="1">
+  Number of server pod replicas. Set `images.provider` to `s3` before scaling
+  above 1.
+</ParamField>
+
+<ParamField path="server.deploy.image.repository" type="string" default="ocg/server">
+  Container image repository for the server (without the tag).
+</ParamField>
+
+<ParamField path="server.deploy.resources" type="object">
+  Kubernetes resource requests and limits for the server container.
+</ParamField>
+
+<ParamField path="server.redirectHosts" type="string[]">
+  Optional list of additional hostnames that redirect to `server.baseUrl`.
+</ParamField>
+
+### Server ingress (`server.ingress`)
+
+<ParamField path="server.ingress.enabled" type="boolean" default="true">
+  Create an `Ingress` resource for the server.
+</ParamField>
+
+<ParamField path="server.ingress.annotations" type="object" default="{kubernetes.io/ingress.class: nginx}">
+  Annotations applied to the `Ingress` resource.
+</ParamField>
+
+<ParamField path="server.ingress.rules" type="object[]">
+  Standard Kubernetes ingress rules. Set your hostname here.
+
+  ```yaml
+  server:
+    ingress:
+      rules:
+        - host: groups.example.com
+          http:
+            paths:
+              - path: /
+                pathType: Prefix
+                backend:
+                  service:
+                    name: server
+                    port:
+                      number: 80
+  ```
+</ParamField>
+
+<ParamField path="server.ingress.tls" type="object[]">
+  TLS configuration for the ingress. Reference a `kubernetes.io/tls` secret.
+
+  ```yaml
+  server:
+    ingress:
+      tls:
+        - hosts:
+            - groups.example.com
+          secretName: ocg-tls
+  ```
+</ParamField>
+
+### Zoom meetings (`meetings.zoom`)
+
+<ParamField path="meetings.zoom.enabled" type="boolean" default="false">
+  Enable the Zoom meetings integration.
+</ParamField>
+
+<ParamField path="meetings.zoom.accountId" type="string">
+  Zoom account identifier.
+</ParamField>
+
+<ParamField path="meetings.zoom.clientId" type="string">
+  Zoom OAuth client ID.
+</ParamField>
+
+<ParamField path="meetings.zoom.clientSecret" type="string">
+  Zoom OAuth client secret.
+</ParamField>
+
+<ParamField path="meetings.zoom.hostPoolUsers" type="string[]">
+  List of Zoom host user email addresses.
+</ParamField>
+
+<ParamField path="meetings.zoom.maxParticipants" type="number" default="100">
+  Maximum participants per meeting.
+</ParamField>
+
+<ParamField path="meetings.zoom.maxSimultaneousMeetingsPerHost" type="number" default="1">
+  Maximum overlapping meetings per host user.
+</ParamField>
+
+<ParamField path="meetings.zoom.webhookSecretToken" type="string">
+  Zoom webhook secret token for signature verification.
+</ParamField>
+
+### Redirector (`redirector`)
+
+<ParamField path="redirector.enabled" type="boolean" default="false">
+  Deploy the `ocg-redirector` component. When enabled, a separate Deployment,
+  Service, and Ingress are created for the redirector.
+</ParamField>
+
+<ParamField path="redirector.addr" type="string" default="0.0.0.0:9001">
+  Address and port the redirector listens on inside its container.
+</ParamField>
+
+<ParamField path="redirector.baseRedirectUrl" type="string">
+  Base URL used as the target for redirects and as the fallback URL. Should
+  match `server.baseUrl`.
+</ParamField>
+
+<ParamField path="redirector.deploy.replicaCount" type="number" default="1">
+  Number of redirector pod replicas.
+</ParamField>
+
+<ParamField path="redirector.deploy.image.repository" type="string" default="ocg/redirector">
+  Container image repository for the redirector.
+</ParamField>
+
+## Database migrations
+
+On `helm install`, the chart runs a `dbmigrator-install` Job before the server
+Deployment starts. The server init container waits for this Job to reach the
+`Complete` condition before allowing the server container to start.
+
+On `helm upgrade`, a `dbmigrator-upgrade` Job runs as a pre-upgrade hook with
+weight `1`, ensuring migrations run before pods are replaced.
+
+<ParamField path="dbmigrator.job.image.repository" type="string" default="ocg/dbmigrator">
+  Container image repository for the database migrator.
+</ParamField>
+
+## Upgrading
+
+```bash
+# Pull the latest chart changes, then upgrade:
+helm upgrade ocg ./charts/ocg \
+  --namespace ocg \
+  --values my-values.yaml
+```
+
+The pre-upgrade hook runs the migrator Job automatically before pods are
+restarted. Monitor the hook job:
+
+```bash
+kubectl get jobs --namespace ocg
+kubectl logs job/dbmigrator-upgrade --namespace ocg
+```
+
+## Rolling back
+
+<Warning>
+  Rolling back a Helm release does **not** reverse database migrations. Only
+  roll back if you have verified that the previous schema is compatible with
+  the older application version, or if you have restored a database snapshot.
+</Warning>
+
+```bash
+# List revision history
+helm history ocg --namespace ocg
+
+# Roll back to a specific revision
+helm rollback ocg <revision> --namespace ocg
+```
+
+## Secrets management
+
+The chart generates a `server-config` Kubernetes Secret containing the full
+`server.yml` rendered from `values.yaml`. This Secret is mounted read-only into
+the server container at `configDir`.
+
+<Tip>
+  Do not store plaintext secrets in your `values.yaml` file in version control.
+  Use one of these approaches instead:
+
+  - Pass secrets at install time with `--set db.password="..."` or `--set-string`
+  - Use an external secrets operator (e.g. External Secrets Operator, Sealed Secrets)
+  - Use Helm secrets plugins (e.g. `helm-secrets` with SOPS)
+</Tip>
+
+## Health check endpoint
+
+Both `ocg-server` (port `9000`) and `ocg-redirector` (port `9001`) expose a
+readiness probe endpoint:
+
+```
+GET /health-check
+```
+
+The chart configures this as a `readinessProbe` on both Deployments. The server
+pod will not receive traffic until this probe succeeds.

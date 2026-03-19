@@ -1,0 +1,377 @@
+---
+title: "Configuration"
+description: "Configure Open Community Groups using environment variables and YAML."
+---
+
+The OCG server is configured with [Figment](https://github.com/SergioBenitez/Figment).
+Configuration sources are merged in the following order — later sources override
+earlier ones:
+
+1. Built-in defaults
+2. YAML configuration file (passed with `-c /path/to/server.yml`)
+3. Environment variables prefixed with `OCG_`
+
+## Environment variable mapping
+
+YAML keys map to environment variables using the `OCG_` prefix and `__` as a
+nested-key separator.
+
+```bash
+# Equivalent to server.base_url in YAML
+export OCG__SERVER__BASE_URL="https://groups.example.com"
+
+# Equivalent to db.host in YAML
+export OCG__DB__HOST="postgres.internal"
+```
+
+<Tip>
+  Environment variables are useful for injecting secrets (passwords, OAuth
+  client secrets) without writing them to a config file on disk.
+</Tip>
+
+## Complete example config
+
+```yaml server.yml
+db:
+  host: localhost
+  port: 5432
+  dbname: ocg
+  user: ocg
+  password: "changeme"
+
+email:
+  from_address: noreply@example.com
+  from_name: "Open Community Groups"
+  smtp:
+    host: smtp.example.com
+    port: 587
+    username: noreply@example.com
+    password: "smtp-password"
+
+images:
+  provider: s3
+  access_key_id: "AKIAIOSFODNN7EXAMPLE"
+  secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+  bucket: ocg-images
+  region: us-east-1
+  endpoint: null
+  force_path_style: false
+
+log:
+  format: json
+
+server:
+  addr: "0.0.0.0:9000"
+  base_url: "https://groups.example.com"
+  cookie:
+    secure: true
+  disable_referer_checks: false
+  login:
+    email: true
+    github: true
+    linuxfoundation: false
+  oauth2:
+    github:
+      auth_url: https://github.com/login/oauth/authorize
+      client_id: "your-github-client-id"
+      client_secret: "your-github-client-secret"
+      redirect_uri: "https://groups.example.com/log-in/oauth2/github/callback"
+      scopes:
+        - "read:user"
+        - "user:email"
+      token_url: https://github.com/login/oauth/access_token
+  oidc:
+    linuxfoundation:
+      client_id: "your-lf-client-id"
+      client_secret: "your-lf-client-secret"
+      issuer_url: "https://sso.linuxfoundation.org"
+      redirect_uri: "https://groups.example.com/log-in/oidc/linuxfoundation/callback"
+      scopes:
+        - openid
+        - profile
+        - email
+
+meetings:
+  zoom:
+    enabled: true
+    account_id: "your-zoom-account-id"
+    client_id: "your-zoom-client-id"
+    client_secret: "your-zoom-client-secret"
+    host_pool_users:
+      - host1@example.com
+      - host2@example.com
+    max_participants: 100
+    max_simultaneous_meetings_per_host: 1
+    webhook_secret_token: "your-zoom-webhook-secret"
+```
+
+---
+
+## Database (`db`)
+
+Uses the `deadpool-postgres` connection configuration. All standard PostgreSQL
+connection fields are supported.
+
+<ParamField path="db.host" type="string" required>
+  PostgreSQL server hostname or IP address.
+</ParamField>
+
+<ParamField path="db.port" type="number" default="5432">
+  PostgreSQL server port.
+</ParamField>
+
+<ParamField path="db.dbname" type="string" required>
+  Name of the PostgreSQL database.
+</ParamField>
+
+<ParamField path="db.user" type="string" required>
+  PostgreSQL username.
+</ParamField>
+
+<ParamField path="db.password" type="string" required>
+  PostgreSQL password.
+</ParamField>
+
+---
+
+## Email (`email`)
+
+<ParamField path="email.from_address" type="string" required>
+  The sender email address used in all outgoing messages (e.g. `noreply@example.com`).
+</ParamField>
+
+<ParamField path="email.from_name" type="string" required>
+  The display name shown as the email sender (e.g. `Open Community Groups`).
+</ParamField>
+
+<ParamField path="email.rcpts_whitelist" type="string[]">
+  Optional list of allowed recipient addresses. Used to restrict outgoing email
+  in development or staging environments.
+
+  - Omit the field (or set to `null`) to allow all recipients.
+  - Set to an empty list (`[]`) to block all outgoing email.
+</ParamField>
+
+### SMTP (`email.smtp`)
+
+<ParamField path="email.smtp.host" type="string" required>
+  SMTP server hostname.
+</ParamField>
+
+<ParamField path="email.smtp.port" type="number" required>
+  SMTP server port. Typically `587` (STARTTLS) or `465` (TLS).
+</ParamField>
+
+<ParamField path="email.smtp.username" type="string" required>
+  SMTP authentication username.
+</ParamField>
+
+<ParamField path="email.smtp.password" type="string" required>
+  SMTP authentication password.
+</ParamField>
+
+---
+
+## Image storage (`images`)
+
+<ParamField path="images.provider" type="string" default="db">
+  Image storage backend. Valid values: `db` or `s3`.
+
+  - `db` — images are stored as binary data directly in PostgreSQL. Simple to
+    operate but does not scale well with multiple server replicas or large
+    media libraries.
+  - `s3` — images are stored in an S3-compatible object storage bucket.
+    Required when running more than one server replica.
+</ParamField>
+
+<Note>
+  The following fields are only read when `images.provider` is `s3`.
+</Note>
+
+<ParamField path="images.access_key_id" type="string">
+  S3 access key ID.
+</ParamField>
+
+<ParamField path="images.secret_access_key" type="string">
+  S3 secret access key.
+</ParamField>
+
+<ParamField path="images.bucket" type="string">
+  Name of the S3 bucket where images will be stored.
+</ParamField>
+
+<ParamField path="images.region" type="string">
+  AWS region or equivalent region identifier for the S3-compatible provider.
+</ParamField>
+
+<ParamField path="images.endpoint" type="string">
+  Custom endpoint URL for non-AWS S3-compatible providers (e.g. MinIO,
+  Cloudflare R2). Omit or set to `null` for AWS S3.
+</ParamField>
+
+<ParamField path="images.force_path_style" type="boolean">
+  Use path-style S3 requests (`https://endpoint/bucket/key`) instead of
+  virtual-hosted-style (`https://bucket.endpoint/key`). Required for some
+  self-hosted providers such as MinIO.
+</ParamField>
+
+---
+
+## Logging (`log`)
+
+<ParamField path="log.format" type="string" default="json">
+  Log output format. Valid values:
+
+  - `json` — structured JSON output, recommended for production.
+  - `pretty` — human-readable output, recommended for local development.
+</ParamField>
+
+---
+
+## HTTP server (`server`)
+
+<ParamField path="server.addr" type="string" default="127.0.0.1:9000">
+  The address and port the HTTP server listens on. Use `0.0.0.0:9000` to
+  listen on all interfaces (required inside a container).
+</ParamField>
+
+<ParamField path="server.base_url" type="string" required>
+  The public base URL for the server, including scheme and hostname
+  (e.g. `https://groups.example.com`). Used to construct absolute URLs in
+  emails and OAuth2 redirect URIs.
+</ParamField>
+
+<ParamField path="server.disable_referer_checks" type="boolean" default="false">
+  Disable HTTP `Referer` header validation on image endpoints. Enable only if
+  your reverse proxy strips referer headers.
+</ParamField>
+
+<ParamField path="server.redirect_hosts" type="string[]">
+  Optional list of additional hostnames that should issue HTTP 301 redirects
+  to `server.base_url`. Useful for migrating from an old domain.
+</ParamField>
+
+### Cookie (`server.cookie`)
+
+<ParamField path="server.cookie.secure" type="boolean">
+  Mark session cookies as `Secure` (HTTPS only). Set to `true` in production.
+  When omitted, the server infers this from whether `server.base_url` uses
+  HTTPS.
+</ParamField>
+
+### Login options (`server.login`)
+
+Enable the authentication methods that your deployment will offer to users.
+At least one must be `true`.
+
+<ParamField path="server.login.email" type="boolean" default="false">
+  Enable email + password authentication.
+</ParamField>
+
+<ParamField path="server.login.github" type="boolean" default="false">
+  Enable GitHub OAuth2 login. Requires the `server.oauth2.github` block.
+</ParamField>
+
+<ParamField path="server.login.linuxfoundation" type="boolean" default="false">
+  Enable Linux Foundation SSO login via OIDC. Requires the
+  `server.oidc.linuxfoundation` block.
+</ParamField>
+
+### GitHub OAuth2 (`server.oauth2.github`)
+
+Required when `server.login.github` is `true`. Register an OAuth App at
+[github.com/settings/developers](https://github.com/settings/developers).
+
+<ParamField path="server.oauth2.github.auth_url" type="string" default="https://github.com/login/oauth/authorize">
+  GitHub authorization endpoint. Leave at the default unless you are using
+  GitHub Enterprise.
+</ParamField>
+
+<ParamField path="server.oauth2.github.client_id" type="string" required>
+  GitHub OAuth App client ID.
+</ParamField>
+
+<ParamField path="server.oauth2.github.client_secret" type="string" required>
+  GitHub OAuth App client secret.
+</ParamField>
+
+<ParamField path="server.oauth2.github.redirect_uri" type="string" required>
+  Callback URL registered in the GitHub OAuth App. Must be:
+  `{server.base_url}/log-in/oauth2/github/callback`
+</ParamField>
+
+<ParamField path="server.oauth2.github.scopes" type="string[]" default="['read:user', 'user:email']">
+  OAuth2 scopes requested from GitHub.
+</ParamField>
+
+<ParamField path="server.oauth2.github.token_url" type="string" default="https://github.com/login/oauth/access_token">
+  GitHub token endpoint.
+</ParamField>
+
+### Linux Foundation OIDC (`server.oidc.linuxfoundation`)
+
+Required when `server.login.linuxfoundation` is `true`.
+
+<ParamField path="server.oidc.linuxfoundation.client_id" type="string" required>
+  OIDC client ID issued by the Linux Foundation SSO.
+</ParamField>
+
+<ParamField path="server.oidc.linuxfoundation.client_secret" type="string" required>
+  OIDC client secret.
+</ParamField>
+
+<ParamField path="server.oidc.linuxfoundation.issuer_url" type="string" required>
+  OIDC issuer URL for the Linux Foundation SSO provider.
+</ParamField>
+
+<ParamField path="server.oidc.linuxfoundation.redirect_uri" type="string" required>
+  Callback URL. Must be:
+  `{server.base_url}/log-in/oidc/linuxfoundation/callback`
+</ParamField>
+
+<ParamField path="server.oidc.linuxfoundation.scopes" type="string[]" default="['openid', 'profile', 'email']">
+  OIDC scopes requested.
+</ParamField>
+
+---
+
+## Zoom meetings (`meetings.zoom`)
+
+Zoom integration is optional. When disabled, the meetings UI is hidden.
+
+<ParamField path="meetings.zoom.enabled" type="boolean" default="false">
+  Set to `true` to activate the Zoom meetings integration. All other fields in
+  this section are required when enabled.
+</ParamField>
+
+<ParamField path="meetings.zoom.account_id" type="string">
+  Zoom account identifier (Server-to-Server OAuth app).
+</ParamField>
+
+<ParamField path="meetings.zoom.client_id" type="string">
+  OAuth client ID for the Zoom Server-to-Server app.
+</ParamField>
+
+<ParamField path="meetings.zoom.client_secret" type="string">
+  OAuth client secret for the Zoom Server-to-Server app.
+</ParamField>
+
+<ParamField path="meetings.zoom.host_pool_users" type="string[]">
+  List of Zoom user email addresses to use as meeting hosts. Must contain at
+  least one entry when Zoom is enabled. Duplicate or invalid email addresses
+  are rejected at startup.
+</ParamField>
+
+<ParamField path="meetings.zoom.max_participants" type="number" default="100">
+  Maximum number of participants allowed per meeting. Should reflect the
+  limit on your Zoom plan.
+</ParamField>
+
+<ParamField path="meetings.zoom.max_simultaneous_meetings_per_host" type="number" default="1">
+  Maximum number of overlapping meetings a single host user can run at one
+  time. Must be `>= 1`.
+</ParamField>
+
+<ParamField path="meetings.zoom.webhook_secret_token" type="string">
+  Secret token used to verify the signature on incoming Zoom webhook events.
+</ParamField>

@@ -1,0 +1,203 @@
+---
+title: "User Dashboard Guide"
+description: "Manage your profile, upcoming events, organizer invitations, session proposals, and submission tracking from the OCG user dashboard."
+---
+
+Think of the User Dashboard as your home base inside OCG. It brings upcoming events, profile, invitations, proposal writing, and submission tracking into one place so moving from participant to speaker feels smooth.
+
+Path: `/dashboard/user`
+
+## Dashboard structure
+
+The dashboard is organized into five areas:
+
+<CardGroup cols={2}>
+  <Card title="My Events" icon="calendar-check">
+    Your personal queue of upcoming events where you already have an active role.
+  </Card>
+  <Card title="Profile" icon="circle-user">
+    Public identity: name, bio, photo, social links, and location.
+  </Card>
+  <Card title="Invitations" icon="envelope">
+    Pending community and group team invitations that unlock organizer access.
+  </Card>
+  <Card title="Session Proposals" icon="microphone">
+    Reusable talk proposals you can submit to eligible events.
+  </Card>
+  <Card title="Submissions" icon="list-check">
+    Track review progress and respond to organizer feedback.
+  </Card>
+</CardGroup>
+
+## My Events: upcoming participation
+
+**My Events** is your personal queue of upcoming events where you already have an active role.
+
+Each row includes:
+
+- Event title with a direct link to the public event page.
+- Event location.
+- Event date and time.
+- Your role in that event (**Attendee**, **Host**, **Speaker**, or multiple roles).
+
+### Filtering and sorting behavior
+
+| Behavior | Rule |
+|---|---|
+| Includes | Only upcoming published events |
+| Excludes | Canceled events |
+| Excludes | Events from inactive or deleted groups |
+| Sort order | Date ascending — next event appears first |
+
+## Profile: public identity
+
+**Profile** is not just cosmetic. Organizers, co-speakers, and reviewers use this information when collaborating with you.
+
+You can maintain:
+
+<AccordionGroup>
+  <Accordion title="Personal details">
+    Name, timezone, company, title, photo, bio, and interests.
+  </Accordion>
+  <Accordion title="Location">
+    City and country.
+  </Accordion>
+  <Accordion title="Social links">
+    Website, LinkedIn, Bluesky, X, and Facebook.
+  </Accordion>
+</AccordionGroup>
+
+Field requirements and character limits are shown inline in the dashboard forms while you edit.
+
+## Invitations: unlock organizer access
+
+When a community or group invites you to help run operations, the invitation appears here. Accepting an invitation updates your access and can add new dashboard options in your user menu.
+
+### Invitation statuses
+
+| Status | Meaning |
+|---|---|
+| Invitation sent | Pending — does not grant access yet |
+| Accepted | Access is active for the related scope |
+| Rejected | Invitation declined |
+
+### What happens after you accept
+
+<Steps>
+  <Step title="Access granted">
+    Access is granted to the related community or group scope.
+  </Step>
+  <Step title="Role becomes active">
+    The assigned community or group role becomes active for permission checks.
+  </Step>
+  <Step title="Invitation state clears">
+    The pending invitation row clears from your inbox.
+  </Step>
+  <Step title="Navigation updates">
+    A page refresh or re-login may be needed before dashboard navigation updates.
+  </Step>
+</Steps>
+
+<Note>
+  If organizer dashboards still do not appear after accepting, see the [Choose Your Dashboard](/getting-started/choose-dashboard) guide and [Troubleshooting](/support/troubleshooting).
+</Note>
+
+## Session proposals: reusable talks
+
+**Session proposals** is where you manage talk proposals you can reuse across events. This keeps your talk content consistent while submitting to different events.
+
+### Creating a proposal
+
+<Steps>
+  <Step title="Start a new proposal">
+    Click **New proposal** in the Session proposals tab.
+  </Step>
+  <Step title="Complete required fields">
+    Fill in **Title**, **Level**, **Duration**, and **Description**.
+  </Step>
+  <Step title="Add a co-speaker (optional)">
+    Search by username to invite a co-speaker to the proposal.
+  </Step>
+  <Step title="Save and reuse">
+    Save the proposal, then submit it from any eligible event CFS flow.
+  </Step>
+</Steps>
+
+### Proposal status model
+
+| Status | Meaning |
+|---|---|
+| Ready for submission | Proposal is eligible to submit to CFS events |
+| Awaiting co-speaker response | Co-speaker invitation is pending |
+| Declined by co-speaker | Co-speaker rejected the invitation |
+| Submitted *(badge)* | Used in one or more event submissions |
+| Linked *(badge)* | Already tied to an approved session |
+
+### When a proposal gets locked
+
+<Warning>
+  **Linked** proposals cannot be edited. **Submitted** proposals can still be updated, but delete and some co-speaker changes are blocked.
+</Warning>
+
+- **Linked** is a hard lock. Once a proposal is linked to an accepted event session, it is treated as delivery content and can no longer be edited in place.
+- **Submitted** is a partial lock. You can still improve most proposal content, but delete is blocked and co-speaker changes are restricted after submission.
+- **Awaiting co-speaker response** and **Declined by co-speaker** are not full edit locks, but they block CFS submission eligibility until co-speaker state is resolved.
+
+### Co-speaker invitations
+
+If another speaker invites you as co-speaker, OCG shows an in-app alert with actions to view, accept, or decline. Co-speaker invite statuses — pending, accepted, or declined — appear alongside your proposal workflow.
+
+For event-side CFS controls and reviewer operations, see [Event Operations](/guides/event-operations).
+
+## Submissions: track and respond
+
+Once you submit a proposal from an event page, **Submissions** becomes your control center for review progress.
+
+### Submission statuses
+
+| Status | What it means for you |
+|---|---|
+| Not reviewed | Submission is in the queue |
+| Information requested | Organizer needs changes before re-review — **Resubmit** appears |
+| Approved | Submission accepted by organizers |
+| Rejected | Submission was not selected |
+| Withdrawn | You withdrew the submission |
+
+### Action behavior
+
+- **Resubmit** appears when status is **Information requested**.
+- **Withdraw** stays available while the submission is active and not finalized.
+- Withdraw is blocked for finalized or linked outcomes.
+
+<Note>
+  When organizers change your submission review state, OCG sends an update message with the new status and any action you need to take.
+</Note>
+
+To understand where submission decisions are made, see [Event Operations](/guides/event-operations).
+
+## Recommended working rhythm
+
+<Tip>
+  Review this list regularly so invitations and submission deadlines do not catch you by surprise.
+</Tip>
+
+<Steps>
+  <Step title="Keep profile current">
+    Especially bio, timezone, and social links — collaborators rely on this information.
+  </Step>
+  <Step title="Track My Events">
+    Stay ahead of upcoming commitments by checking your event queue regularly.
+  </Step>
+  <Step title="Clear invitations quickly">
+    Accept or decline pending invitations so role-based access stays accurate.
+  </Step>
+  <Step title="Build reusable proposals before deadlines">
+    Draft proposals in advance so you are ready when CFS opens on an event you care about.
+  </Step>
+  <Step title="Submit to open CFS events">
+    Submit proposals from event pages while the CFS window is open.
+  </Step>
+  <Step title="Watch Submissions and respond fast">
+    When status changes to **Information requested**, respond promptly to stay in review.
+  </Step>
+</Steps>

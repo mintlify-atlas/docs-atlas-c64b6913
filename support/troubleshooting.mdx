@@ -1,0 +1,222 @@
+---
+title: "Troubleshooting"
+description: "Resolve common issues in Open Community Groups."
+---
+
+This page helps you diagnose issues quickly by symptom. If you do not see your issue here, check the [Frequently Asked Questions](/support/faq).
+
+## Dashboard access
+
+<AccordionGroup>
+  <Accordion title="I cannot access a dashboard">
+    <Warning>
+      Without the correct context selected, dashboard actions will fail silently or appear disabled. Verify each step before assuming a permissions problem.
+    </Warning>
+
+    Check the following before escalating:
+
+    <Steps>
+      <Step title="Confirm you are logged in">
+        Make sure you have an active session. If you are not logged in, dashboard routes redirect you to the login page.
+      </Step>
+      <Step title="Accept any pending invitations">
+        Open [User Dashboard → Invitations](/guides/user-dashboard) and accept the invitation for the community or group you are trying to access.
+      </Step>
+      <Step title="Select the required context">
+        - **Community dashboard**: select the target community from the community selector.
+        - **Group dashboard**: select both the target community and the target group.
+      </Step>
+      <Step title="Refresh after reselecting">
+        If actions still fail after selecting the correct context, re-select the community or group from the dashboard selectors and refresh the page.
+      </Step>
+    </Steps>
+  </Accordion>
+
+  <Accordion title="Controls are disabled in dashboard tabs">
+    Disabled controls usually indicate role-based authorization, not a UI bug.
+
+    Common examples of expected restrictions:
+
+    | Role | Restricted from |
+    |---|---|
+    | Community `viewer` | Modifying settings, taxonomy, team, or groups |
+    | Community `groups-manager` | Modifying community settings, taxonomy, or team |
+    | Group `events-manager` | Managing members, settings, sponsors, or team |
+    | Group `viewer` | All write actions (read-only) |
+
+    If you need broader access, request a higher role from a team admin.
+
+    <Tip>
+      To understand which roles have which permissions, see the [Choose Your Dashboard](/getting-started/choose-dashboard) guide.
+    </Tip>
+  </Accordion>
+
+  <Accordion title="Team member remove action is disabled">
+    <Warning>
+      You cannot remove or demote the final accepted `admin` on a community or group team. Doing so would leave the team without an administrator.
+    </Warning>
+
+    To remove the current sole admin:
+
+    <Steps>
+      <Step title="Add another team member">
+        Invite and confirm a second team member with `admin` role.
+      </Step>
+      <Step title="Retry the removal">
+        Once the new admin has accepted, return to the team table and retry the remove action on the original member.
+      </Step>
+    </Steps>
+  </Accordion>
+</AccordionGroup>
+
+## Events
+
+<AccordionGroup>
+  <Accordion title="Join group or attend event buttons do not work">
+    Check each of the following:
+
+    <Steps>
+      <Step title="Confirm you are logged in">
+        Participation actions require an active session.
+      </Step>
+      <Step title="Check group and event status">
+        The group and event must be active and available. Canceled events disable normal participation flows.
+      </Step>
+      <Step title="Refresh your session">
+        Stale sessions can cause buttons to appear unresponsive. Refresh the page and try again.
+      </Step>
+    </Steps>
+
+    For events specifically:
+
+    - **Capacity limits** can block new attendees even when the event is active.
+    - **Canceled events** disable all attendance actions.
+  </Accordion>
+
+  <Accordion title="Event cannot be published">
+    An event must pass a completeness check before it can be published. Verify all of the following in the event editor:
+
+    <Steps>
+      <Step title="Fill required details">
+        Name, type, category, and description must all be present.
+      </Step>
+      <Step title="Validate date and time">
+        The end date and time must be on or after the start date and time.
+      </Step>
+      <Step title="Check meeting constraints">
+        If automatic meeting creation is requested, all meeting constraints must be satisfied. Note that automatic meetings are only supported for `virtual` and `hybrid` event types.
+      </Step>
+      <Step title="Validate CFS rules">
+        If Call for Speakers is enabled, all CFS configuration rules must be valid before the event can be published.
+      </Step>
+    </Steps>
+
+    <Tip>
+      See the [Event Operations guide](/guides/event-operations) for a full walkthrough of the event lifecycle and publishing requirements.
+    </Tip>
+  </Accordion>
+
+  <Accordion title="Check-in is unavailable">
+    Check-in availability depends on several conditions:
+
+    <Steps>
+      <Step title="Confirm your RSVP">
+        Only attendees who have RSVP'd with this account can check in. You cannot check in without a prior RSVP.
+      </Step>
+      <Step title="Verify event status">
+        The event must be published and not canceled.
+      </Step>
+      <Step title="Check the check-in window">
+        The check-in window opens **2 hours before** the event starts and closes at the end of the event day. For multi-day events, it closes at the end of the final day.
+      </Step>
+    </Steps>
+  </Accordion>
+</AccordionGroup>
+
+## Call for Speakers (CFS)
+
+<AccordionGroup>
+  <Accordion title="CFS submit button is disabled">
+    The submit button is enabled only when all of the following conditions are met:
+
+    <Steps>
+      <Step title="CFS must be enabled for the event">
+        Confirm that Call for Speakers is active on the event's public page.
+      </Step>
+      <Step title="CFS time window must be open">
+        Submissions are only accepted within the configured CFS open and close dates.
+      </Step>
+      <Step title="Confirm you are logged in">
+        An active session is required to submit.
+      </Step>
+      <Step title="Check for eligible proposals">
+        You must have at least one eligible session proposal in your [User Dashboard → Session proposals](/guides/user-dashboard). Proposal options already submitted to the same event are disabled in the modal.
+      </Step>
+    </Steps>
+  </Accordion>
+
+  <Accordion title="I cannot resubmit or withdraw a submission">
+    Submission actions depend on the current status of the submission:
+
+    | Action | Available when |
+    |---|---|
+    | **Resubmit** | Submission status is `Information requested` |
+    | **Withdraw** | Submission is still active and under review |
+
+    After a final outcome — such as `approved` or `linked` — withdraw is no longer available.
+
+    <Warning>
+      Once a submission reaches a final status, it cannot be withdrawn. Plan submissions carefully before the CFS window closes.
+    </Warning>
+
+    Confirm the current status of your submissions in [User Dashboard → Submissions](/guides/user-dashboard).
+  </Accordion>
+
+  <Accordion title="My proposal is missing in the CFS modal">
+    If a proposal you created does not appear in the CFS submission modal, check for these likely causes:
+
+    - The proposal is not in an eligible submission status.
+    - The proposal was already submitted to this event (already-submitted options are hidden or disabled in the modal).
+    - You are logged in with a different account than the one that owns the proposal.
+
+    <Tip>
+      Manage and review all proposals from [User Dashboard → Session proposals](/guides/user-dashboard).
+    </Tip>
+  </Accordion>
+</AccordionGroup>
+
+## Notifications and email
+
+<AccordionGroup>
+  <Accordion title="Email send action is disabled">
+    The send action for group members or event attendees emails is disabled when the recipient count is zero.
+
+    Also verify that the following required fields are filled in before sending:
+
+    - **Title** — the subject line of the email
+    - **Body** — plain text content of the email
+
+    If the recipient count appears unexpectedly low, confirm that the group has active members or that the event has confirmed attendees.
+  </Accordion>
+</AccordionGroup>
+
+## Analytics
+
+<AccordionGroup>
+  <Accordion title="Analytics data looks outdated">
+    Analytics data is cached and can lag by a few minutes. This is expected behavior, not a data loss issue.
+
+    <Steps>
+      <Step title="Refresh the page">
+        A hard refresh clears any local browser cache and fetches the latest served data.
+      </Step>
+      <Step title="Wait briefly and refresh again">
+        If the data is still stale, wait a few minutes for the cache to expire and refresh once more.
+      </Step>
+    </Steps>
+
+    <Note>
+      Platform-wide growth trends are available on the public Stats page and are also subject to caching.
+    </Note>
+  </Accordion>
+</AccordionGroup>
