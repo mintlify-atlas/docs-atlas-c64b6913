@@ -1,0 +1,78 @@
+{
+  "projectType": "saas",
+  "projectName": "Open Community Groups",
+  "projectDescription": "An open source events platform for communities and organizations to manage groups, events, speaker programs, and member engagement in one place.",
+  "theme": "mint",
+  "primaryColor": "#040404",
+  "lightColor": "#fcfcfc",
+  "darkColor": null,
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "getting-started/quickstart",
+              "getting-started/choose-dashboard"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/public-site",
+              "guides/user-dashboard",
+              "guides/community-dashboard",
+              "guides/group-dashboard",
+              "guides/event-operations"
+            ]
+          },
+          {
+            "group": "Support",
+            "pages": [
+              "support/troubleshooting",
+              "support/faq"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Self-Hosting",
+        "groups": [
+          {
+            "group": "Deployment",
+            "pages": [
+              "self-hosting/overview",
+              "self-hosting/configuration",
+              "self-hosting/kubernetes"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Multi-community and multi-group management with dedicated dashboards",
+    "Full event lifecycle: in-person, virtual, and hybrid events",
+    "Call for Speakers with proposal submission and session review workflow",
+    "QR code check-in and attendance tracking",
+    "Zoom integration with automatic meeting setup",
+    "Interactive map and calendar views for event/group discovery",
+    "Role-based access with community, group, and user dashboard scopes",
+    "Automated email notifications with calendar attachments",
+    "Analytics dashboards with charts and metrics per community/group",
+    "GitHub and Linux Foundation SSO login options"
+  ],
+  "publicApiSurface": [
+    "GET /explore — browse events and groups",
+    "POST /log-in — email/password and OAuth login",
+    "GET /dashboard/user — user profile, events, proposals, submissions",
+    "GET /dashboard/community — community settings, regions, categories, analytics, groups",
+    "GET /dashboard/group — group management, events, members, sponsors, notifications",
+    "POST /dashboard/group/events — create and manage events",
+    "POST /dashboard/community/groups — create and manage groups",
+    "QR check-in endpoint for event attendance"
+  ]
+}
